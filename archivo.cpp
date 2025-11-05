@@ -102,3 +102,33 @@ bool leer_red_archivo(std::list<Router>& topologia){
     return true;
 }
 
+bool guardar_red_archivo(const std::list<Router>& topologia, const std::string& nombre_archivo) {
+    if (topologia.empty()) {
+        std::cerr << "La topologia esta vacia. Nada que guardar.\n";
+        return false;
+    }
+
+    std::ofstream archivo(nombre_archivo);
+    if (!archivo.is_open()) {
+        std::cerr << "No se pudo abrir el archivo para escribir: " << nombre_archivo << "\n";
+        return false;
+    }
+
+    // Formato de salida: una linea por router: ID vecino1Costo vecino2Costo ...
+    for (const auto& router : topologia) {
+        std::ostringstream oss;
+        oss << router.idRouter;
+        for (const auto& par : router.vecinos) {
+            if (par.first) {
+                oss << ' ' << par.first->idRouter << par.second;
+            }
+        }
+        archivo << oss.str() << '\n';
+    }
+
+    archivo.close();
+    std::cout << "Topologia guardada en: " << nombre_archivo << std::endl;
+    return true;
+}
+
+
