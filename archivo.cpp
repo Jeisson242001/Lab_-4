@@ -131,4 +131,35 @@ bool guardar_red_archivo(const std::list<Router>& topologia, const std::string& 
     return true;
 }
 
+void menus(std::list<Router>& topologia){
+    std::string respuesta_menu;
+    bool menu= true;
+    while(menu){
+        std::cout<<"Menu"<<std::endl;
+        std::cout<<"\t1. Agregar un router"<<std::endl;
+        std::cout<<"\t2. Eliminar un router"<<std::endl;
+        std::cout<<"\t3. Mostrar camino y costo mas eficiente"<<std::endl;
+        std::cout<<"\t4. Guardar topologia en archivo"<<std::endl;
+        std::cout<<"\t5. Salir del menu\n"<<std::endl;
+        std::cout<<"Seleccione una opcion: ";std::cin>>respuesta_menu;
+        if(respuesta_menu=="1"){
+            crearRouters(topologia);
+        }else if(respuesta_menu=="2"){
+            eliminarRouter(topologia);
+        }else if(respuesta_menu=="3"){
+            Buscando_camino(topologia);
+        }else if(respuesta_menu=="4"){
+            std::string nombre;
+            std::cout << "Ingrese el nombre del archivo donde guardar (sin extension): ";
+            std::cin >> nombre;
+            nombre += ".txt";
+            guardar_red_archivo(topologia, nombre);
+        }else if(respuesta_menu=="5"){
+            menu= false;
+        }else{
+            std::cout<<"Ingresaste una opcion invalida"<<std::endl;
+        }
+    }
+}
+
 
