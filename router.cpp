@@ -217,3 +217,126 @@ bool verificarExistenciaRouter(std::list<Router>& topologia, char nombre, Router
     }
     return false;
 }
+
+void Buscando_camino(std::list<Router>& topologia){
+    char id_router_fuente, id_router_destino;
+    bool ban=true;
+    Router* puntero_fuente = nullptr;
+    Router* puntero_destino = nullptr;
+    while(ban){
+        std::cout<<"Ingrese la Id del router fuente: "; std::cin>>id_router_fuente;
+        if(!verificarExistenciaRouter(topologia, id_router_fuente, puntero_fuente)){
+            std::cout << "La id ingresada no existe\n";
+            continue;
+        }
+        std::cout<<"Ingrese la Id del router destino: ";std::cin>>id_router_destino;
+        if(!verificarExistenciaRouter(topologia, id_router_destino, puntero_destino)){
+            std::cout << "La id ingresada no existe\n";
+            continue;
+        }
+        dijkstra(puntero_fuente, puntero_destino, topologia);
+        ban = false;
+    }
+}
+
+void crearRouters(std::list<Router>& topologia){
+    bool entrando = true;
+    char nuevo;
+
+    while(entrando){
+        std::cout << "Ingrese el identificador del router (una letra del alfabeto) a agregar en la red: "; std::cin >> nuevo;
+        bool existe = false;
+        for(const auto& requisa : topologia){
+            if(requisa.idRouter == nuevo){
+                existe = true;
+                break;
+            }
+        }
+        if(existe){
+            std::cout << "Ese router ya existe. Intente otro nombre." << std::endl;
+            continue;
+        }
+
+        topologia.emplace_back(nuevo);
+        Router* nuevoptr = &topologia.back();
+
+        int conexiones = 0;
+        int tamaño = static_cast<int>(topologia.size());
+        recibirConexiones(conexiones, tamaño);
+
+        for(int k = 0; k < conexiones; ){
+            char vecinodelnuevo;
+            std::cout <<"Nombre del vecino del router a agregar en la red: "; std::cin >> vecinodelnuevo;
+            Router* requisaptr = nullptr;
+            bool existe_vecino = verificarExistenciaRouter(topologia, vecinodelnuevo, requisaptr);
+            if(!existe_vecino){
+                std::cout << "No existe ese router. Intente de nuevo.\n";
+                continue;
+            }
+            if(requisaptr->idRouter == nuevoptr->idRouter){
+                std::cout << "No puedes conectar un router a si mismo.\n";
+                continue;
+            }
+            if(verificarVecino(requisaptr, *nuevoptr)){
+                std::cout<<"Este router ya es vecino del nuevo router"<<std::endl;
+                continue;
+            }
+
+            int costodelnuevo = 0;
+            std::cout <<"Ingrese el costo del nuevo router al vecino: "; std::cin >> costodelnuevo;
+            // agregar aristas en ambas direcciones
+            nuevoptr->nuevoVecino(requisaptr, costodelnuevo);
+            requisaptr->nuevoVecino(nuevoptr, costodelnuevo);
+            ++k;
+        }
+
+        entrando = false;
+    }
+
+    for(const auto& rout : topologia){
+        verVecinos(rout);
+        std::cout<< std::endl;
+    }
+}
+
+void recibirConexiones(int& conexiones, int tamaño){
+    while(true){
+        std::cout << "Ingrese la cantidad de vecinos: "; std::cin >> conexiones; std::cout << std::endl;
+        if(conexiones >= 0 && conexiones < tamaño){
+            break;
+        }else{
+            std::cout << "Cantidad invalida (no hay suficientes routers o valor negativo). Trate de nuevo." << std::endl;
+        }
+    }
+}
+
+void eliminarRouter(std::list<Router>& topologia){
+    char nuevo;
+    Router *puntero = nullptr;
+    while(true){
+        std::cout << "Ingrese el identificador del router (una letra del alfabeto) a borrar en la red: "; std::cin >> nuevo;
+        bool existe= verificarExistenciaRouter(topologia, nuevo, puntero);
+        if(!existe){
+            std::cout << "No existe ese router. Intente de nuevo.\n";
+            continue;
+        }
+        // eliminar referencias en vecinos
+        for(auto& vec: topologia){
+            vec.vecinos.erase(
+                std::remove_if(vec.vecinos.begin(), vec.vecinos.end(),
+                               [nuevo](const std::pair<Router*, int>& p){
+                                   return p.first && p.first->idRouter == nuevo;
+                               }),
+                vec.vecinos.end()
+                );
+        }
+        // eliminar router de la lista
+        topologia.remove_if([nuevo](const Router& r){ return r.idRouter == nuevo; });
+        break;
+    }
+
+    for(const auto& rout : topologia){
+        verVecinos(rout);
+        std::cout<< std::endl;
+    }
+}
