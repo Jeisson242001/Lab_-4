@@ -14,3 +14,4 @@ bool guardar_red_archivo(const std::list<Router>& topologia, const std::string& 
 void menus(std::list<Router>& topologia);
 
 #endif // ARCHIVO_H
+
