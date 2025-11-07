@@ -37,7 +37,7 @@ bool verificarExistenciaRouter(std::list<Router>& topologia, char nombre, Router
 
 void Buscando_camino(std::list<Router>& topologia);
 
-void recibirConexiones(int& conexiones, int tamaño);
+void recibirConexiones(int& conexiones, int tamano);
 
 void crearRouters(std::list<Router>& topologia);
 
